@@ -1,0 +1,35 @@
+name: Build NightMode .exe
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:  # Manuel tetikleme butonu da olsun
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Kodu indir
+        uses: actions/checkout@v4
+
+      - name: .NET 8 SDK kur
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Derle (.exe üret)
+        run: |
+          dotnet publish NightMode/NightMode.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            /p:PublishSingleFile=true `
+            /p:DebugType=None `
+            /p:DebugSymbols=false
+
+      - name: .exe dosyasını artifact olarak kaydet
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightmode-exe
+          path: NightMode/bin/Release/net8.0-windows/win-x64/publish/nightmode.exe
